@@ -1,0 +1,30 @@
+{
+  "name": "my-messenger",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.12.3",
+    "@nandorojo/swr-firestore": "^0.16.0",
+    "email-validator": "^2.0.4",
+    "firebase": "^9.1.0",
+    "material-ui": "^0.20.2",
+    "moment": "^2.29.1",
+    "next": "11.1.2",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-firebase-hooks": "^3.0.4",
+    "styled-components": "^5.3.1",
+    "swr-firestore-v9": "^1.0.2",
+    "timeago-react": "^3.0.4"
+  },
+  "devDependencies": {
+    "eslint": "7.32.0",
+    "eslint-config-next": "11.1.2"
+  }
+}
