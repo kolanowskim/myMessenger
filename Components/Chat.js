@@ -37,15 +37,17 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
-  margin-left: 25px;
-  width: 100%;
+  // width: 100%;
   padding: 10px;
+  margin: 0px 7px 0px 5px;
 
   :hover {
     background-color: lightgray;
+    border-radius: 30px;
+    transition: 0.5s;
   }
 `;
 
 const UserAvatar = styled(Avatar)`
-  margin: 5px 5px 5px 15px;
+  margin: 5px 5px 5px 10px;
 `;

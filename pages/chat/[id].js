@@ -42,7 +42,7 @@ const Wrapper = styled.div`
 
 const ChatWrapper = styled.div`
   flex: 1;
-  overflow: scroll;
+  overflow-y: scroll;
   height: 100vh;
   background-color: lightpink;
 
