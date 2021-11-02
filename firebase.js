@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { GoogleAuthProvider, getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { Fuego } from "swr-firestore-v9";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhFTMBnaorLs_iMZQr_Btar3Eyw7j0RXE",
@@ -17,5 +18,6 @@ const fuego = new Fuego(firebaseConfig);
 const db = getFirestore();
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
+const storage = getStorage();
 
-export { db, auth, provider, fuego };
+export { db, auth, provider, fuego, storage };

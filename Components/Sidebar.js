@@ -13,6 +13,7 @@ import Chat from "./Chat";
 import { useCollection } from "swr-firestore-v9";
 
 function Sidebar() {
+  const [subMenu, setSubMenu] = useState(false);
   const [user] = useAuthState(auth);
   const { data: chats } = useCollection("chats", {
     where: ["users", "array-contains", user.email],
@@ -37,13 +38,26 @@ function Sidebar() {
   const chatAlreadyExist = (recipientEmail) =>
     chats?.find((chat) => chat.users.find((user) => user === recipientEmail));
 
+  const showSubMenu = () => {
+    setSubMenu(!subMenu);
+  };
+
   return (
     <Wrapper>
       <HeaderWrapper>
         <Header>
           <Avatar src={user.photoURL} />
           <Name>{user.displayName}</Name>
-          <VertIcon onClick={() => signOut(auth)} />
+
+          <SubMenu>
+            <VertIcon onClick={() => showSubMenu()} />
+            <DropDownList subMenu={subMenu}>
+              <DropDownButton>Edytuj Konto</DropDownButton>
+              <DropDownButton onClick={() => auth.signOut()}>
+                Wyloguj
+              </DropDownButton>
+            </DropDownList>
+          </SubMenu>
         </Header>
         <LastChats>
           Last chats
@@ -98,10 +112,39 @@ const VertIcon = styled(MoreVertIcon)`
   cursor: pointer;
   box-sizing: content-box;
   padding: 5px;
+  position: relative;
   :hover {
     transition: 0.5s;
     border-radius: 20px;
     background-color: lightgray;
+  }
+`;
+
+const SubMenu = styled.div`
+  position: relative;
+`;
+const DropDownList = styled.div`
+  top: 100%;
+  right: 50%;
+  position: absolute;
+  // background-color: white;
+  width: 150px;
+  //height: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  border: 1px solid lightgrey;
+  box-shadow: 2px -2px 10px grey;
+  visibility: ${({ subMenu }) => (subMenu ? "visible" : "hidden")};
+`;
+const DropDownButton = styled.button`
+  cursor: pointer;
+  border: none;
+  background-color: white;
+  padding: 15px;
+  :hover {
+    transition: 0.5s;
+    background-color: lightgrey;
   }
 `;
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import getRecipientEmail from "../../utils/getRecipientEmail";
 import styled from "styled-components";
@@ -7,8 +7,9 @@ import ChatScreen from "../../components/ChatScreen";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
+import CurrentChatContext from "../../context";
 
-function NoMetter({ users }) {
+function NoMetter({ users, chatID }) {
   const [user] = useAuthState(auth);
 
   return (
@@ -16,7 +17,9 @@ function NoMetter({ users }) {
       <Head>
         <title>Chat with {getRecipientEmail(users, user)}</title>
       </Head>
-      <Sidebar />
+      <CurrentChatContext.Provider value={chatID}>
+        <Sidebar />
+      </CurrentChatContext.Provider>
       <ChatWrapper>
         <ChatScreen users={users} />
       </ChatWrapper>
@@ -32,6 +35,7 @@ export async function getServerSideProps(context) {
   return {
     props: {
       users: chat.data().users,
+      chatID: context.query.id,
     },
   };
 }
