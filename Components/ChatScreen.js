@@ -23,6 +23,9 @@ import {
 } from "firebase/storage";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import CloseIcon from "@mui/icons-material/Close";
+import "emoji-mart/css/emoji-mart.css";
+import { Picker } from "emoji-mart";
+import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
 
 function ChatScreen({ users }) {
   const [input, setInput] = useState("");
@@ -33,11 +36,7 @@ function ChatScreen({ users }) {
   const [image, setImage] = useState("");
   const [urlP, setUrlP] = useState("");
   const [addPhotoFlag, setAddPhotoFlag] = useState(false);
-  const [chosenEmoji, setChosenEmoji] = useState(null);
-
-  const onEmojiClick = (event, emojiObject) => {
-    setChosenEmoji(emojiObject);
-  };
+  const [addEmojiFlag, setAddEmojiFlag] = useState(false);
 
   const { data: messages } = useCollection(
     `chats/${router.query.id}/messages`,
@@ -215,6 +214,18 @@ function ChatScreen({ users }) {
               />
             </AddPhotoWrapper>
           )}
+          <AddEmoji onClick={() => setAddEmojiFlag(!addEmojiFlag)} />
+
+          {addEmojiFlag && (
+            <EmojiPicker>
+              <Picker
+                set="facebook"
+                showPreview={false}
+                showSkinTones={false}
+                onClick={(emoji) => setInput(`${input}${emoji.native}`)}
+              />
+            </EmojiPicker>
+          )}
         </AddonsWrapper>
         <TextForm onSubmit={sendMessage}>
           <Input value={input} onChange={(e) => typeInput(e)} type="text" />
@@ -228,6 +239,13 @@ function ChatScreen({ users }) {
 }
 
 export default ChatScreen;
+
+const EmojiPicker = styled.div`
+  position: absolute;
+  z-index: 999;
+  bottom: 50px;
+  left: 50px;
+`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -283,7 +301,9 @@ const Input = styled.input`
   border-radius: 10px;
 `;
 
-const AddonsWrapper = styled.div``;
+const AddonsWrapper = styled.div`
+  position: relative;
+`;
 
 const EndOfMessage = styled.div`
   margin-bottom: 40px;
@@ -291,6 +311,8 @@ const EndOfMessage = styled.div`
 
 const AddPhotoIcon = styled(AddPhotoAlternateIcon)`
   cursor: pointer;
+  margin-left: 10px;
+  margin-right: 10px;
 `;
 
 const AddPhotoWrapper = styled.div`
@@ -339,4 +361,11 @@ const LabelPhoto = styled.label`
 
 const InputPhoto = styled.input`
   display: none;
+`;
+
+const AddEmoji = styled(InsertEmoticonIcon)`
+  cursor: pointer;
+  margin-left: 10px;
+  margin-right: 10px;
+  //background-color: whitesmoke;
 `;
