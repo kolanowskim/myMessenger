@@ -93,6 +93,10 @@ function ChatScreen({ users }) {
       isMessage: true,
     });
     setInput("");
+
+    updateDoc(doc(db, "chats", router.query.id), {
+      timestamp: serverTimestamp(),
+    });
   };
 
   const typeInput = (e) => {

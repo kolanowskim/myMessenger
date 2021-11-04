@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useRouter } from "next/router";
 import { Avatar } from "@material-ui/core";
 import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
 import { useAuthState } from "react-firebase-hooks/auth";
 import styled from "styled-components";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+import { updateDoc, serverTimestamp, doc } from "firebase/firestore";
 import getRecipientEmail from "../utils/getRecipientEmail";
 import { useCollection } from "swr-firestore-v9";
 import CurrentChatContext from "../context";
@@ -14,6 +15,7 @@ function Chat({ id, users }) {
   const [user] = useAuthState(auth);
   const recipientEmail = getRecipientEmail(users, user);
   const [notification, setNotification] = useState(false);
+  const currentChatID = useContext(CurrentChatContext);
 
   const { data: messages } = useCollection(`chats/${id}/messages`, {
     listen: true,
@@ -27,6 +29,12 @@ function Chat({ id, users }) {
       } else {
         setNotification(false);
       }
+    }
+    if (currentChatID != id) {
+      console.log("chuj", currentChatID);
+      updateDoc(doc(db, "chats", id), {
+        timestamp: serverTimestamp(),
+      });
     }
   }, [messages]);
 
@@ -46,10 +54,7 @@ function Chat({ id, users }) {
         <UserAvatar>{recipientEmail[0]}</UserAvatar>
       )}
       <p>{recipientEmail}</p>
-      <CurrentChatContext.Consumer>
-        {(value) => (value === id ? null : notification && <ExclamationMark />)}
-      </CurrentChatContext.Consumer>
-      {}
+      {currentChatID === id ? null : notification && <ExclamationMark />}
     </Wrapper>
   );
 }

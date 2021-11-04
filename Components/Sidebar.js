@@ -8,9 +8,10 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../firebase";
 import { signOut } from "firebase/auth";
 import * as EmailValidator from "email-validator";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import Chat from "./Chat";
 import { useCollection } from "swr-firestore-v9";
+import SearchIcon from "@mui/icons-material/Search";
 
 function Sidebar() {
   const [subMenu, setSubMenu] = useState(false);
@@ -19,6 +20,13 @@ function Sidebar() {
     where: ["users", "array-contains", user.email],
     listen: true,
   });
+  const [sortedChats, setSortedChats] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const sorted = chats?.sort((a, b) => b.timestamp - a.timestamp);
+    setSortedChats(sorted);
+  }, [chats]);
 
   const createChat = () => {
     const input = prompt("Podaj adres email odbiorcy");
@@ -31,6 +39,7 @@ function Sidebar() {
     ) {
       addDoc(collection(db, "chats"), {
         users: [user.email, input],
+        timestamp: serverTimestamp(),
       });
     }
   };
@@ -59,15 +68,38 @@ function Sidebar() {
             </DropDownList>
           </SubMenu>
         </Header>
+        <SearchWrapper>
+          <SearchIcon />
+          <SearchInput
+            placeholder="Search"
+            type="text"
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </SearchWrapper>
         <LastChats>
           Last chats
           <PlusIcon onClick={createChat} />
         </LastChats>
       </HeaderWrapper>
       <ChatsWrapper>
-        {chats?.map((chat) => (
-          <Chat key={chat.id} id={chat.id} users={chat.users} />
-        ))}
+        {console.log(searchQuery)}
+        {sortedChats
+          ?.filter((chat) => {
+            if (searchQuery === "") {
+              return chat;
+            } else if (
+              chat.users.filter(
+                (chatUser) =>
+                  chatUser.toLowerCase().includes(searchQuery.toLowerCase()) &&
+                  chatUser !== user.email
+              ).length > 0
+            ) {
+              return chat;
+            }
+          })
+          ?.map((chat) => (
+            <Chat key={chat.id} id={chat.id} users={chat.users} />
+          ))}
       </ChatsWrapper>
     </Wrapper>
   );
@@ -146,6 +178,24 @@ const DropDownButton = styled.button`
     transition: 0.5s;
     background-color: lightgrey;
   }
+`;
+
+const SearchWrapper = styled.div`
+  border-bottom: 1px solid whitesmoke;
+  margin: 5px 15px 5px 15px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  background-color: whitesmoke;
+  border-radius: 20px;
+`;
+
+const SearchInput = styled.input`
+  outline-width: 0;
+  border: none;
+  flex: 1;
+  background-color: whitesmoke;
+  margin-left: 10px;
 `;
 
 const LastChats = styled.div`
