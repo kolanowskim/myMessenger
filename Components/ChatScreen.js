@@ -51,9 +51,6 @@ function ChatScreen({ users }) {
     listen: true,
   });
 
-  //Jeśli user = recipientemail
-  //Ustaw read na true
-
   useEffect(() => {
     scrollToBottom();
     if (
@@ -76,14 +73,18 @@ function ChatScreen({ users }) {
     });
   };
 
-  //read = false
-
-  const sendMessage = (e) => {
-    e.preventDefault();
+  const updateTimeStamp = () => {
     updateDoc(doc(db, "users", user.uid), {
       lastSeen: serverTimestamp(),
     });
 
+    updateDoc(doc(db, "chats", router.query.id), {
+      timestamp: serverTimestamp(),
+    });
+  };
+
+  const sendMessage = (e) => {
+    e.preventDefault();
     addDoc(collection(db, "chats", router.query.id, "messages"), {
       timestamp: serverTimestamp(),
       message: input,
@@ -93,10 +94,7 @@ function ChatScreen({ users }) {
       isMessage: true,
     });
     setInput("");
-
-    updateDoc(doc(db, "chats", router.query.id), {
-      timestamp: serverTimestamp(),
-    });
+    updateTimeStamp();
   };
 
   const typeInput = (e) => {
@@ -120,10 +118,6 @@ function ChatScreen({ users }) {
 
   const sendImage = (url, e) => {
     e.preventDefault();
-    updateDoc(doc(db, "users", user.uid), {
-      lastSeen: serverTimestamp(),
-    });
-
     addDoc(collection(db, "chats", router.query.id, "messages"), {
       timestamp: serverTimestamp(),
       user: user.email,
@@ -131,6 +125,8 @@ function ChatScreen({ users }) {
       read: false,
       isMessage: false,
     });
+    updateTimeStamp();
+    setImage("");
   };
 
   const upload = (e) => {
@@ -159,14 +155,12 @@ function ChatScreen({ users }) {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          console.log("File available at", downloadURL);
           setUrlP(downloadURL);
           sendImage(downloadURL, e);
           setAddPhotoFlag(false);
         });
       }
     );
-    setImage("");
   };
   return (
     <Wrapper>
@@ -188,7 +182,7 @@ function ChatScreen({ users }) {
               )}
             </p>
           ) : (
-            <p>Loading Last active</p>
+            <p>Never logged</p>
           )}
         </HeaderInformation>
       </HeaderWrapper>
@@ -197,39 +191,18 @@ function ChatScreen({ users }) {
       </MessagesWrapper>
       <InputWrapper>
         <AddonsWrapper>
-          <AddPhotoIcon onClick={() => setAddPhotoFlag(!addPhotoFlag)} />
-          {addPhotoFlag && (
-            <AddPhotoWrapper>
-              <p>Add photo</p>
-              <LabelPhoto>
-                <InputPhoto
-                  type="file"
-                  onChange={(e) => {
-                    setImage(e.target.files[0]);
-                  }}
-                />
-                Click to choose a photo
-              </LabelPhoto>
-              {image && <Button onClick={upload}>Send</Button>}
-              <CloseIconMUI
-                onClick={() => {
-                  setAddPhotoFlag(false), setImage("");
-                }}
-              />
-            </AddPhotoWrapper>
-          )}
-          <AddEmoji onClick={() => setAddEmojiFlag(!addEmojiFlag)} />
-
-          {addEmojiFlag && (
-            <EmojiPicker>
-              <Picker
-                set="facebook"
-                showPreview={false}
-                showSkinTones={false}
-                onClick={(emoji) => setInput(`${input}${emoji.native}`)}
-              />
-            </EmojiPicker>
-          )}
+          <IconsWrapper>
+            <AddPhotoIcon onClick={() => setAddPhotoFlag(!addPhotoFlag)} />
+            <AddEmojiIcon onClick={() => setAddEmojiFlag(!addEmojiFlag)} />
+          </IconsWrapper>
+          <EmojiPicker visible={addEmojiFlag}>
+            <Picker
+              set="facebook"
+              showPreview={false}
+              showSkinTones={false}
+              onClick={(emoji) => setInput(`${input}${emoji.native}`)}
+            />
+          </EmojiPicker>
         </AddonsWrapper>
         <TextForm onSubmit={sendMessage}>
           <Input value={input} onChange={(e) => typeInput(e)} type="text" />
@@ -238,6 +211,24 @@ function ChatScreen({ users }) {
           </button>
         </TextForm>
       </InputWrapper>
+      <AddPhotoWrapper visible={addPhotoFlag}>
+        <p>Add photo</p>
+        <LabelPhoto>
+          <InputPhoto
+            type="file"
+            onChange={(e) => {
+              setImage(e.target.files[0]);
+            }}
+          />
+          Click to choose a photo
+        </LabelPhoto>
+        {image && <Button onClick={upload}>Send</Button>}
+        <CloseIconMUI
+          onClick={() => {
+            setAddPhotoFlag(false), setImage("");
+          }}
+        />
+      </AddPhotoWrapper>
     </Wrapper>
   );
 }
@@ -246,25 +237,33 @@ export default ChatScreen;
 
 const EmojiPicker = styled.div`
   position: absolute;
-  z-index: 999;
-  bottom: 50px;
+  visibility: ${({ visible }) => (visible ? "visible" : "hidden")};
   left: 50px;
+  top: -385px;
 `;
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
+  background-color: white;
+  min-height: 80vh;
+  max-height: 80vh;
+  box-sizing: content-box;
+  overflow: hidden;
+  position: relative;
+  justify-content: space-between;
+  box-shadow: 0px 0px 10px 2px grey;
+  z-index: 101;
+  border-radius: 30px;
 `;
 const HeaderWrapper = styled.div`
   position: sticky;
   top: 0;
   display: flex;
   padding: 10px;
-  border-bottom: 1px solid whitesmoke;
   align-items: center;
-  z-index: 100;
-  background-color: white;
-  height: 80px;
+  z-index: 101;
+  border-bottom: 1px solid #c5c3c6;
 `;
 const HeaderInformation = styled.div`
   margin-left: 15px;
@@ -278,22 +277,34 @@ const HeaderInformation = styled.div`
 `;
 
 const MessagesWrapper = styled.div`
-  background-color: #e5ded8;
-  min-height: 90vh;
+  flex: 1;
+  overflow-y: scroll;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  background-color: #dcdcdd;
 `;
 
 const InputWrapper = styled.div`
   display: flex;
   align-items: center;
   padding: 10px;
-  position: sticky;
+  position: relative;
   bottom: 0;
+  right: 0;
   background-color: white;
+  margin: 0;
+  z-index: 102;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
 `;
 const TextForm = styled.form`
   flex: 1;
   margin-left: 15px;
-  margin-left: 15px;
+  position: relative;
+  z-index: 101;
 `;
 
 const Input = styled.input`
@@ -303,14 +314,24 @@ const Input = styled.input`
   border: none;
   padding: 20px;
   border-radius: 10px;
+  position: relative;
 `;
 
 const AddonsWrapper = styled.div`
   position: relative;
+  // overflow: hidden;
+  background-color: white;
+  z-index: 101;
 `;
 
 const EndOfMessage = styled.div`
   margin-bottom: 40px;
+`;
+
+const IconsWrapper = styled.div`
+  background-color: white;
+  position: relative;
+  z-index: 101;
 `;
 
 const AddPhotoIcon = styled(AddPhotoAlternateIcon)`
@@ -319,19 +340,27 @@ const AddPhotoIcon = styled(AddPhotoAlternateIcon)`
   margin-right: 10px;
 `;
 
+const AddEmojiIcon = styled(InsertEmoticonIcon)`
+  cursor: pointer;
+  margin-left: 10px;
+  margin-right: 10px;
+`;
+
 const AddPhotoWrapper = styled.div`
-  height: 130px;
-  width: 400px;
-  position: fixed;
-  top: 50vh;
-  right: calc(50vw - 400px);
+  height: ${({ visible }) => (visible ? "130px" : "70px")};
+  width: 300px;
+  position: absolute;
+  bottom: 90px;
+  left: ${({ visible }) => (visible ? "30px" : "-300px")};
   background-color: white;
   display: flex;
   align-items: center;
   flex-direction: column;
   border-radius: 10px;
-  box-shadow: 0 0 10px 10px grey;
+  box-shadow: ${({ visible }) => (visible ? "0px 0px 10px 2px grey" : "none")};
   padding: 10px;
+  z-index: 0;
+  transition: 0.5s;
 `;
 
 const CloseIconMUI = styled(CloseIcon)`
@@ -365,11 +394,4 @@ const LabelPhoto = styled.label`
 
 const InputPhoto = styled.input`
   display: none;
-`;
-
-const AddEmoji = styled(InsertEmoticonIcon)`
-  cursor: pointer;
-  margin-left: 10px;
-  margin-right: 10px;
-  //background-color: whitesmoke;
 `;

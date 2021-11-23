@@ -1,54 +1,54 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Button } from "@material-ui/core";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Avatar from "@mui/material/Avatar";
 import AddIcon from "@mui/icons-material/Add";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../firebase";
-import { signOut } from "firebase/auth";
 import * as EmailValidator from "email-validator";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import Chat from "./Chat";
 import { useCollection } from "swr-firestore-v9";
 import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 function Sidebar() {
-  const [subMenu, setSubMenu] = useState(false);
   const [user] = useAuthState(auth);
   const { data: chats } = useCollection("chats", {
     where: ["users", "array-contains", user.email],
     listen: true,
+    orderBy: ["timestamp", "desc"],
   });
-  const [sortedChats, setSortedChats] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    const sorted = chats?.sort((a, b) => b.timestamp - a.timestamp);
-    setSortedChats(sorted);
-  }, [chats]);
+  const [newChatFormHook, setNewChatFormHook] = useState(false);
+  const [inputEmail, setInputEmail] = useState("");
+  const [inputEmailError, setInputEmailError] = useState(false);
 
   const createChat = () => {
-    const input = prompt("Podaj adres email odbiorcy");
-
-    if (!input) return;
+    if (!inputEmail) return;
     if (
-      EmailValidator.validate(input) &&
-      !chatAlreadyExist(input) &&
-      input !== user.email
+      EmailValidator.validate(inputEmail) &&
+      !chatAlreadyExist(inputEmail) &&
+      inputEmail !== user.email
     ) {
       addDoc(collection(db, "chats"), {
-        users: [user.email, input],
+        users: [user.email, inputEmail],
         timestamp: serverTimestamp(),
       });
+      setInputEmail("");
+      setInputEmailError(false);
+    } else {
+      setInputEmailError(true);
     }
   };
 
   const chatAlreadyExist = (recipientEmail) =>
     chats?.find((chat) => chat.users.find((user) => user === recipientEmail));
 
-  const showSubMenu = () => {
-    setSubMenu(!subMenu);
+  const toggleNewChatForm = () => {
+    setNewChatFormHook(!newChatFormHook);
+    setInputEmail("");
+    setInputEmailError(false);
   };
 
   return (
@@ -57,15 +57,8 @@ function Sidebar() {
         <Header>
           <Avatar src={user.photoURL} />
           <Name>{user.displayName}</Name>
-
           <SubMenu>
-            <VertIcon onClick={() => showSubMenu()} />
-            <DropDownList subMenu={subMenu}>
-              <DropDownButton>Edytuj Konto</DropDownButton>
-              <DropDownButton onClick={() => auth.signOut()}>
-                Wyloguj
-              </DropDownButton>
-            </DropDownList>
+            <Logout onClick={() => auth.signOut()} />
           </SubMenu>
         </Header>
         <SearchWrapper>
@@ -78,12 +71,24 @@ function Sidebar() {
         </SearchWrapper>
         <LastChats>
           Last chats
-          <PlusIcon onClick={createChat} />
+          <PlusIcon onClick={() => toggleNewChatForm()} />
+          <NewChatForm visible={newChatFormHook}>
+            <h2>Add new chat</h2>
+            <NewChatP>Type receiver email</NewChatP>
+            <NewChatInput
+              value={inputEmail}
+              onChange={(e) => setInputEmail(e.target.value)}
+            ></NewChatInput>
+            {inputEmailError && (
+              <NewChatP error>incorrect email or duplicate</NewChatP>
+            )}
+            <NewChatButton onClick={() => createChat()}>Add</NewChatButton>
+            <NewChatCloseIcon onClick={() => toggleNewChatForm()} />
+          </NewChatForm>
         </LastChats>
       </HeaderWrapper>
       <ChatsWrapper>
-        {console.log(searchQuery)}
-        {sortedChats
+        {chats
           ?.filter((chat) => {
             if (searchQuery === "") {
               return chat;
@@ -110,25 +115,32 @@ export default Sidebar;
 const Wrapper = styled.div`
   min-width: 400px;
   max-width: 400px;
-  height: 100vh;
   overflow-y: scroll;
   ::-webkit-scrollbar {
     display: none;
   }
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none;
+  min-height: 80vh;
+  max-height: 80vh;
+  background-color: white;
+  border-radius: 30px;
+  box-shadow: 0px 0px 10px 2px grey;
 `;
 
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-left: 15px;
-  margin-right: 10px;
   padding: 10px;
   align-items: center;
   margin-bottom: 30px;
   border-bottom: 1px solid whitesmoke;
-  box-shadow: 0px 2px 5px grey;
+  box-shadow: 0px 2px 5px 1px grey;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+  position: relative;
+  z-index: 101;
+  background-color: white;
 `;
 
 const HeaderWrapper = styled.div`
@@ -140,7 +152,7 @@ const HeaderWrapper = styled.div`
 
 const Name = styled.h2``;
 
-const VertIcon = styled(MoreVertIcon)`
+const Logout = styled(LogoutIcon)`
   cursor: pointer;
   box-sizing: content-box;
   padding: 5px;
@@ -148,36 +160,12 @@ const VertIcon = styled(MoreVertIcon)`
   :hover {
     transition: 0.5s;
     border-radius: 20px;
-    background-color: lightgray;
+    background-color: #dcdcdd;
   }
 `;
 
 const SubMenu = styled.div`
   position: relative;
-`;
-const DropDownList = styled.div`
-  top: 100%;
-  right: 50%;
-  position: absolute;
-  // background-color: white;
-  width: 150px;
-  //height: 50px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  border: 1px solid lightgrey;
-  box-shadow: 2px -2px 10px grey;
-  visibility: ${({ subMenu }) => (subMenu ? "visible" : "hidden")};
-`;
-const DropDownButton = styled.button`
-  cursor: pointer;
-  border: none;
-  background-color: white;
-  padding: 15px;
-  :hover {
-    transition: 0.5s;
-    background-color: lightgrey;
-  }
 `;
 
 const SearchWrapper = styled.div`
@@ -206,6 +194,7 @@ const LastChats = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 10px;
+  position: relative;
 `;
 
 const PlusIcon = styled(AddIcon)`
@@ -216,21 +205,57 @@ const PlusIcon = styled(AddIcon)`
   :hover {
     transition: 0.5s;
     border-radius: 20px;
-    background-color: lightgray;
+    background-color: #dcdcdd;
   }
 `;
 
-/* const StyledButton = styled(Button)`
-  width: 100%;
-  &&& {
-    border-top: 1px solid whitesmoke;
-    border-bottom: 1px solid whitesmoke;
-    margin: 5px 5px 5px 25px;
-    font-weight: bold;
-    :hover {
-      background-color: lightgray;
-    }
+const NewChatForm = styled.div`
+  position: absolute;
+  top: ${({ visible }) => (visible ? "100px" : "-250px")};
+  left: calc((400px - 300px - 15px - 10px - 5px) / 2);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  width: 300px;
+  height: 150px;
+  background-color: #dcdcdd;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px 2px grey;
+  transition: 0.5s;
+`;
+
+const NewChatCloseIcon = styled(CloseIcon)`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+`;
+
+const NewChatInput = styled.input`
+  border: none;
+  padding: 5px;
+  width: 250px;
+  outline: none;
+  border-radius: 5px;
+`;
+
+const NewChatButton = styled.button`
+  border: none;
+  border-radius: 5px;
+  padding: 5px;
+  box-shadow: 0px 1px 2px 1px grey;
+  cursor: pointer;
+  transition: 0.2s;
+  :hover {
+    background-color: #dcdcdd;
   }
-`; */
+`;
+
+const NewChatP = styled.p`
+  font-weight: lighter;
+  font-size: 13px;
+`;
 
 const ChatsWrapper = styled.div``;

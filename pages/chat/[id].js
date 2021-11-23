@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Head from "next/head";
 import getRecipientEmail from "../../utils/getRecipientEmail";
 import styled from "styled-components";
@@ -42,17 +42,16 @@ export async function getServerSideProps(context) {
 
 const Wrapper = styled.div`
   display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 100vh;
+  background-color: #dcdcdd;
 `;
 
 const ChatWrapper = styled.div`
   flex: 1;
-  overflow-y: scroll;
-  height: 100vh;
-  background-color: lightpink;
-
-  ::-webkit-scrollbar {
-    display: none;
+  max-width: 40vw;
+  @media (min-width: 1400px) {
+    margin-right: 15vw;
   }
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
 `;
