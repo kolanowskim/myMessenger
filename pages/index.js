@@ -98,9 +98,25 @@ const Mannual = styled.div`
   max-width: 40vw;
   min-height: 80vh;
   max-height: 80vh;
+  overflow-y: scroll;
   box-shadow: 0px 0px 10px 2px grey;
   border-radius: 30px;
   background-color: white;
+
+  ::-webkit-scrollbar {
+    width: 5px;
+    display: block;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    margin-top: 50px;
+    margin-bottom: 50px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: grey;
+    border-radius: 30px;
+  }
 
   @media (min-width: 1400px) {
     margin-right: 15vw;
@@ -111,8 +127,10 @@ const MannualHeader = styled.h1`
   display: flex;
   justify-content: center;
   border-bottom: 1px solid #c5c3c6;
+  background-color: white;
   box-shadow: 0px 3px whitesmoke;
-  margin: 5px 0 5px 0;
+  position: sticky;
+  top: 0;
 `;
 
 const MannualContent = styled.div`
