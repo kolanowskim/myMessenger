@@ -118,11 +118,18 @@ const ShowImageWrapper = styled.div`
   width: 100vw;
   top: 0;
   left: 0;
-  backdrop-filter: blur(2px);
   z-index: 900;
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: rgba(255, 255, 255, 0.7);
+  @supports (
+    (-webkit-backdrop-filter: blur(2px)) or (backdrop-filter: blur(2px))
+  ) {
+    background-color: rgba(255, 255, 255, 0.5);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+  }
 `;
 
 const ShowImageCointener = styled.div`
