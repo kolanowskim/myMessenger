@@ -17,7 +17,7 @@ email-validator<br/>
 
 
 
-If you want to chat with someone, you must provide email from google account of this person, because you can login only by Google account. Of course you can provide some random email for test, but if this email have never been loged you will get information "never logged" at the header of this chat. <br/>
+f you want to chat with someone, you must provide email from google account of this person, because you can log in here only by Google account Of course you can provide some random email for test, but if this email have never been loged you will get information "never logged" at the header of this chat. <br/>
 Below you can find a short description of features.<br/>
 
 
