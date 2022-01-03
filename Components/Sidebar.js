@@ -37,6 +37,7 @@ function Sidebar() {
       });
       setInputEmail("");
       setInputEmailError(false);
+      toggleNewChatForm();
     } else {
       setInputEmailError(true);
     }
