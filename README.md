@@ -46,7 +46,7 @@ Also Emoji
 
 
 
-On the another account we can see that application give notification about incoming messages. When we go into this chat, notification will hidden
+On the another account we can see that application gives notification about incoming messages. When we go into this chat, notification will hidden
 
 ![image](https://user-images.githubusercontent.com/83921557/147929838-b3099d24-901b-4a60-a960-585cb9971a6c.png)
 
@@ -61,7 +61,7 @@ You can also search chats.
 ![image](https://user-images.githubusercontent.com/83921557/147930072-fd63789d-a189-4d9c-a4ee-6b27e04e3462.png)
  
  
- Chats are auto-sorting by last activity. 
+Chats are auto-sorting by last activity. 
  
  
 
