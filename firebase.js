@@ -1,16 +1,15 @@
-import { initializeApp } from "firebase/app";
 import { GoogleAuthProvider, getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { Fuego } from "swr-firestore-v9";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAhFTMBnaorLs_iMZQr_Btar3Eyw7j0RXE",
-  authDomain: "mymessenger-c8a5e.firebaseapp.com",
-  projectId: "mymessenger-c8a5e",
-  storageBucket: "mymessenger-c8a5e.appspot.com",
-  messagingSenderId: "560132488765",
-  appId: "1:560132488765:web:c6ddf216bc7876345b7454",
+  apiKey: process.env.NEXT_PUBLIC_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_APP_ID,
 };
 
 const fuego = new Fuego(firebaseConfig);
