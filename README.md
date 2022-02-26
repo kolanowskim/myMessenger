@@ -37,7 +37,7 @@ This is real-time communicator.
 ![image](https://user-images.githubusercontent.com/83921557/155857921-871f7337-cb33-4e98-8998-6bc421b84a5e.png)
 ![image](https://user-images.githubusercontent.com/83921557/155857931-27d76052-2294-485e-8c5a-c0115a8fcf95.png)
 
-### Email validaiton: 
+### Email validation:
 
 ![image](https://user-images.githubusercontent.com/83921557/155857943-dc973893-824c-4ff9-9409-197ce5cbe329.png)
 
@@ -57,7 +57,7 @@ This is real-time communicator.
 
 ![image](https://user-images.githubusercontent.com/83921557/155858054-9252cccc-8605-4acd-b45b-011c5e0f9a54.png)
 
-### Clicked trash and then, chat has been deleted:
+### Click trash and then the chat will be deleted:
 
 ![image](https://user-images.githubusercontent.com/83921557/155858087-a170edd7-15ab-4355-9bfb-6884e82a18bc.png)
 
